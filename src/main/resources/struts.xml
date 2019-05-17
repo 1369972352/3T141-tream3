@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+    <constant name="struts.i18n.encoding" value="UTF-8"/>
+    <!--  创建一个 default 包，继承自 struts2 的struts-default -->
+    <package name="default"  extends="struts-default">
+        <!-- 用户action-->
+        <action name="*User" class="cn.smbms.Action.UserAction" method="{1}User">
+            <result name="success">jsp/frame.jsp</result>
+            <result name="login">login.jsp</result>
+            <result name="query">jsp/userlist.jsp</result>
+            <result name="View" >jsp/userview.jsp</result>
+            <result name="Views" >jsp/usermodify.jsp</result>
+            <result name="add" type="redirectAction">queryUser.action</result>
+            <result name="upadeUser" type="redirectAction">queryUser.action</result>
+            <result name="pwd">login.jsp</result>
+        </action>
+        <!--订单action-->
+        <action name="*Buill" class="cn.smbms.Action.BuillAction" method="{1}Buill">
+            <result name="bquery">jsp/billlist.jsp</result>
+            <result name="queryId">jsp/billview.jsp</result>
+            <result name="uqate">jsp/billmodify.jsp</result>
+            <result name="buillquery" type="redirectAction">queryBuill.action</result>
+            <result name="add"  type="redirectAction">queryBuill.action</result>
+
+        </action>
+        <action name="*Provider" class="cn.smbms.Action.ProviderAction" method="{1}Provider">
+            <result name="query">jsp/providerlist.jsp</result>
+            <result name="view">jsp/providerview.jsp</result>
+            <result name="upateView">jsp/providermodify.jsp</result>
+            <result name="upate" type="redirectAction">queryProvider.action</result>
+            <result name="add" type="redirectAction">queryProvider.action</result>
+            <result name="delete" type="redirectAction">queryProvider.action</result>
+        </action>
+    </package>
+
+</struts>

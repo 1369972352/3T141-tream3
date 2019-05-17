@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.smbms.mapper.Bill.BillMapper">
+    <!--取别名-->
+    <resultMap id="billMap" type="cn.smbms.entity.SmbmsBill">
+        <result property="id" column="id"></result>
+        <result property="billCode" column="billCode"></result>
+        <result property="productName" column="productName"></result>
+        <result property="productDesc" column="productDesc"></result>
+        <result property="productUnit" column="productUnit"></result>
+        <result property="productCount" column="productCount"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+        <result property="isPayment" column="isPayment"></result>
+        <result property="createdBy" column="createdBy"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <result property="modifyDate" column="modifyDate"></result>
+        <result property="providerId" column="providerId"></result>
+        <!--一对一-->
+        <!--2章上机练习3-->
+        <association property="provider" javaType="cn.smbms.entity.SmbmsProvider">
+            <id property="id" column="id"/>
+            <result property="proName" column="proName"/>
+        </association>
+    </resultMap>
+    <!--模糊查询商品-->
+    <select id="getBillList" resultMap="billMap" parameterType="cn.smbms.entity.SmbmsBill">
+        select b.*,p.proName from smbms_bill b,smbms_provider p
+        <where>
+            b.providerId=p.id
+            <if test="bill!=null and bill.productName != null and bill.productName != ''">
+                and productName like concat('%',#{bill.productName},'%')
+            </if>
+            <if test="bill!=null and bill.providerId > 0">
+                and providerId =#{bill.providerId}
+            </if>
+            <if test="bill!=null and bill.isPayment > 0 ">
+                and isPayment =#{bill.isPayment}
+            </if>
+            order by b.id desc
+            limit #{currentPageNo},#{pageNo}
+        </where>
+    </select>
+    <!--查询总行数-->
+    <select id="queryRows" resultType="java.lang.Integer">
+        select count(1) from smbms_bill b,smbms_provider p
+        <where>
+            b.providerId=p.id
+            <if test="bill.productName != null and bill.productName != ''">
+                and productName like concat('%',#{bill.productName},'%')
+            </if>
+            <if test="bill.providerId > 0">
+                and providerId =#{bill.providerId}
+            </if>
+            <if test="bill.isPayment > 0">
+                and isPayment =#{bill.isPayment}
+            </if>
+        </where>
+    </select>
+    <!--应用上面的resultMap-->
+    <select id="queryById" resultMap="billMap">
+        select b.*,p.proName from smbms_bill b,smbms_provider p
+        <where>
+            b.providerId=p.id
+            <if test="id !=null and id !=''">
+                and b.id=#{id};
+            </if>
+        </where>
+    </select>
+    <!--删除-->
+    <delete id="deleteByIdBill" parameterType="Integer">
+          delete  from smbms_bill where id =#{id}
+    </delete>
+    <!--修改-->
+    <update id="uapateBill" parameterType="cn.smbms.entity.SmbmsBill">
+        update smbms_bill
+        <trim prefix="set" suffixOverrides="," suffix="where id =#{id}">
+            <if test="billCode!=null">billCode=#{billCode},</if>
+            <if test="productName!=null">productName=#{productName},</if>
+            <if test="productDesc!=null">productDesc=#{productDesc},</if>
+            <if test="productUnit!=null">productUnit=#{productUnit},</if>
+            <if test="productCount!=null">productCount=#{productCount},</if>
+            <if test="totalPrice!=null">totalPrice=#{totalPrice},</if>
+            <if test="isPayment!=null">isPayment=#{isPayment},</if>
+            <if test="createdBy!=null">createdBy=#{createdBy},</if>
+            <if test="creationDate!=null">creationDate=#{creationDate},</if>
+            <if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+            <if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+            <if test="providerId!=null">providerId=#{providerId},</if>
+        </trim>
+    </update>
+
+    <insert id="addBill" parameterType="cn.smbms.entity.SmbmsBill">
+            insert into smbms_bill value (default,#{billCode},#{productName},
+        #{productDesc},#{productUnit},#{productCount},#{totalPrice},#{isPayment},#{createdBy},#{creationDate},#{modifyBy},#{modifyDate},#{providerId})
+    </insert>
+</mapper>

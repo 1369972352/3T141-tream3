@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.smbms.mapper.user.UserMapper">
+    <!--用户名跟密码-->
+    <select id="login" resultType="cn.smbms.entity.SmbmsUser">
+        select * from smbms_user
+        <where>
+            <if test="userCode !=null and userCode !=''">
+                and userCode=#{userCode}
+            </if>
+            <if test="userPassword !=null and userPassword !=''">
+                and userPassword=#{userPassword}
+            </if>
+        </where>
+    </select>
+    <!--查询总行数-->
+    <select id="queryRows" resultType="java.lang.Integer">
+        select count(1) from smbms_user u,smbms_role r
+        <where>
+            u.userRole=r.id
+            <if test="user.userName!=null and user.userName!=''">
+                and userName like concat('%',#{user.userName},'%')
+            </if>
+            <if test="user.userRole > 0">
+                and userRole=#{user.userRole}
+            </if>
+
+        </where>
+    </select>
+    <!--用一对一做查询 用户分页也进行模糊查询-->
+    <resultMap id="userMap" type="cn.smbms.entity.SmbmsUser">
+        <result property="id" column="id"></result>
+        <result property="userCode" column="userCode"></result>
+        <result property="userName" column="userName"></result>
+        <result property="userPassword" column="userPassword"></result>
+        <result property="gender" column="gender"></result>
+        <result property="birthday" column="birthday"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+        <result property="phone" column="phone"></result>
+        <result property="address" column="address"></result>
+        <result property="userRole" column="userRole"></result>
+        <result property="createdBy" column="createdBy"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <result property="modifyBy" column="modifyBy"></result>
+        <result property="modifyDate" column="modifyDate"></result>
+        <association property="role" javaType="cn.smbms.entity.SmbmsRole">
+            <result property="roleName" column="roleName"/>
+        </association>
+    </resultMap>
+    <!--模糊查询-->
+    <select id="getUserList" resultMap="userMap">
+        select u.*,r.roleName from smbms_user u,smbms_role r
+        <where>
+            u.userRole=r.id
+            <if test="user !=null and user.userName!=null and user.userName!=''">
+                and userName like concat('%',#{user.userName},'%')
+            </if>
+            <if test="user !=null and user.userRole > 0">
+                and userRole=#{user.userRole}
+            </if>
+        </where>
+        limit #{currentPageNo},#{pageNo}
+    </select>
+    <!--添加用户-->
+    <insert id="addUser">
+        insert into smbms_user value (default,#{userCode},#{userName},
+        #{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},null,null)
+    </insert>
+    <!--根据id查询用户信息-->
+    <!--一对多-->
+    <resultMap id="listuserMap" type="cn.smbms.entity.SmbmsUser">
+        <result property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="userPassword" column="userPassword"/>
+        <result property="gender" column="gender"/>
+        <result property="birthday" column="birthday"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="userRole" column="userRole"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="modifyBy" column="modifyBy"/>
+        <result property="modifyDate" column="modifyDate"/>
+        <!--一对多属性collection   ofType返回的类型--><!--property="role"user类里的对象-->
+        <collection property="role" ofType="cn.smbms.entity.SmbmsRole">
+            <result property="roleCode" column="roleCode"/>
+            <result property="roleName" column="roleName"/>
+            <result property="createdBy" column="createdBy"/>
+            <result property="creationDate" column="creationDate"/>
+            <result property="modifyBy" column="modifyBy"/>
+            <result property="modifyDate" column="modifyDate"/>
+        </collection>
+    </resultMap>
+    <select id="queryById" resultMap="listuserMap">
+        select u.*,r.roleName from smbms_user u,smbms_role r
+        <where>
+            u.userRole=r.id
+            <if test="id > 0">
+                and u.id=#{id}
+            </if>
+        </where>
+    </select>
+    <!--删除-->
+    <delete id="deleteUser" parameterType="Integer">
+            delete  from smbms_user where id =#{id}
+    </delete>
+    <!--修改-->
+    <update id="uapateUser" parameterType="cn.smbms.entity.SmbmsUser">
+        update smbms_user
+        <trim prefix="set" suffixOverrides="," suffix="where id =#{id}">
+            <if test="userCode!=null">userCode=#{userCode},</if>
+            <if test="userName!=null">userName=#{userName},</if>
+            <if test="userPassword!=null">userPassword=#{userPassword},</if>
+            <if test="gender!=null">gender=#{gender},</if>
+            <if test="birthday!=null">birthday=#{birthday},</if>
+            <if test="phone!=null">phone=#{phone},</if>
+            <if test="address!=null">address=#{address},</if>
+            <if test="userRole!=null">userRole=#{userRole},</if>
+            <if test="createdBy!=null">createdBy=#{createdBy},</if>
+            <if test="creationDate!=null">creationDate=#{creationDate},</if>
+            <if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+            <if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+        </trim>
+    </update>
+    <!--判断用户名是否存在-->
+    <update id="upatePwdUser" parameterType="cn.smbms.entity.SmbmsUser">
+        update smbms_user
+        <trim prefix="set" suffixOverrides="," suffix="where id =#{id}">
+            <if test="userPassword!=null">userPassword=#{userPassword},</if>
+        </trim>
+    </update>
+    <!--判断用户名是否存在-->
+    <select id="selectUserCodeExist" resultType="java.lang.Integer">
+        select count(1) from smbms_user where userCode=#{userCode}
+    </select>
+</mapper>

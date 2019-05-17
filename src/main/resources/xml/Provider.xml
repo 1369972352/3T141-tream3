@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.smbms.mapper.Provider.ProviderMapper">
+    <!--查询角色-->
+    <select id="getProviderList" resultType="cn.smbms.entity.SmbmsProvider">
+        select * from smbms_provider
+    </select>
+    <!--resultMap-->
+    <resultMap id="providerMap" type="cn.smbms.entity.SmbmsProvider">
+        <result property="id" column="id"></result>
+        <result property="proCode" column="proCode"></result>
+        <result property="proName" column="proName"></result>
+        <result property="proDesc" column="proDesc"></result>
+        <result property="proContact" column="proContact"></result>
+        <result property="proPhone" column="proPhone"></result>
+        <result property="proAddress" column="proAddress"></result>
+        <result property="proFax" column="proFax"></result>
+        <result property="createdBy" column="createdBy"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <result property="modifyDate" column="modifyDate"></result>
+        <result property="modifyBy" column="modifyBy"></result>
+
+    </resultMap>
+    <!--模糊查询商品-->
+    <select id="getProviderLists" resultMap="providerMap" parameterType="cn.smbms.entity.SmbmsProvider">
+        select * from smbms_provider
+        <where>
+            <if test="provider!=null and provider.proCode != null and provider.proCode != ''">
+                and proCode like concat('%',#{provider.proCode},'%')
+            </if>
+            <if test="provider!=null and provider.proName !=null and provider.proName !=''">
+                and proName like concat('%',#{provider.proName},'%')
+            </if>
+        </where>
+        limit #{currentPageNo},#{pageNo}
+    </select>
+    <!--查询行数-->
+    <select id="queryRows" resultType="java.lang.Integer">
+        select count(1)from smbms_provider
+        <where>
+            <if test="provider!=null and provider.proCode != null and provider.proCode != ''">
+                and proCode like concat('%',#{provider.proCode},'%')
+            </if>
+            <if test="provider!=null and provider.proName !=null and provider.proName !=''">
+                and proName =#{provider.proName}
+            </if>
+        </where>
+    </select>
+    <!--根据id查询-->
+    <select id="queryById" resultType="cn.smbms.entity.SmbmsProvider">
+        select * from smbms_provider where id =#{id}
+    </select>
+    <!--修改-->
+    <update id="upateProvider" parameterType="cn.smbms.entity.SmbmsProvider">
+        update smbms_provider
+        <trim prefix="set" suffixOverrides="," suffix="where id =#{id}">
+            <if test="proCode!=null">proCode=#{proCode},</if>
+            <if test="proName!=null">proName=#{proName},</if>
+            <if test="proDesc!=null">proDesc=#{proDesc},</if>
+            <if test="proContact!=null">proContact=#{proContact},</if>
+            <if test="proPhone!=null">proPhone=#{proPhone},</if>
+            <if test="proAddress!=null">proAddress=#{proAddress},</if>
+            <if test="proFax!=null">proFax=#{proFax},</if>
+            <if test="createdBy!=null">createdBy=#{createdBy},</if>
+            <if test="creationDate!=null">creationDate=#{creationDate},</if>
+            <if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+        </trim>
+    </update>
+
+    <insert id="addProvider" parameterType="cn.smbms.entity.SmbmsProvider">
+            insert into smbms_provider value (default,#{proCode},#{proName},
+        #{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate},#{modifyDate},#{modifyBy})
+    </insert>
+
+    <select id="queryBillRows" resultType="java.lang.Integer">
+      SELECT COUNT(1) FROM smbms_bill WHERE providerId=#{proid}
+    </select>
+    <!--删除-->
+    <delete id="deleteProvider">
+        delete  from smbms_provider where id =#{id}
+    </delete>
+</mapper>
